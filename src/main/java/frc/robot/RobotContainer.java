@@ -4,60 +4,93 @@
 
 package frc.robot;
 
+import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.drive.MecanumDrivetrain;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.commands.PowerIntake;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.auto.PathPlannerAuto;
 
-/**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
- * subsystems, commands, and trigger mappings) should be declared here.
- */
 public class RobotContainer {
-  // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
-  // Replace with CommandPS4Controller or CommandJoystick if needed
+  public final MecanumDrivetrain m_drive = new MecanumDrivetrain();
+  public final Elevator m_elevator = new Elevator();
+  public final Intake m_intake = new Intake();
+
+  private final SendableChooser<Command> m_autoChooser = new SendableChooser<>();
+
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
+  private final CommandXboxController m_armController =
+    new CommandXboxController(OperatorConstants.kArmControllerPort);
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    // Configure the trigger bindings
     configureBindings();
+    configureAutos();
+
+    SmartDashboard.putNumberArray("Elevator Heights", AutoConstants.elevatorHeights);
   }
 
-  /**
-   * Use this method to define your trigger->command mappings. Triggers can be created via the
-   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
-   * predicate, or via the named factories in {@link
-   * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for {@link
-   * CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
-   * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
-   * joysticks}.
-   */
   private void configureBindings() {
-    // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    new Trigger(m_exampleSubsystem::exampleCondition)
-        .onTrue(new ExampleCommand(m_exampleSubsystem));
+    m_armController.y().onTrue(m_elevator.setGoal(3));
+    m_armController.povUp().onTrue(m_elevator.up());
+    m_armController.povDown().onTrue(m_elevator.down());
+    m_armController.a().onTrue(m_elevator.setGoal(0));
 
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
-    // cancelling on release.
-    m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+    m_armController.x().onTrue(m_elevator.setPos(5));
+
+    //TODO: Fix this so it doesn't conflict with other set power
+    m_armController.rightBumper().onTrue(new PowerIntake(m_intake, 0.6).withTimeout(0.2));
   }
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
+  private void configureAutos() {
+    m_autoChooser.addOption("Main Auto", Autos.mainAuto(this));
+    m_autoChooser.addOption("Drive Forward Auto", Autos.driveAuto(this));
+
+    SmartDashboard.putData("Auto", m_autoChooser);
+  }
+
   public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return Autos.exampleAuto(m_exampleSubsystem);
+    try {
+      return new PathPlannerAuto("67"); // made me giggle so hard
+    } catch (Exception e) {
+      DriverStation.reportError("Hey atleast we tried " + e.getMessage(), e.getStackTrace());
+    }
+    return Commands.none();
+  }
+
+  public Command getAuto() {
+    return m_autoChooser.getSelected();
+  }
+  
+  //TODO: Refactor
+  public void teleop() {
+    double drivePower = (1 - (m_elevator.m_elevMotor.getEncoder().getPosition() / AutoConstants.elevatorHeights[3])) * 0.5 + 0.5;
+    
+    if(m_driverController.rightBumper().getAsBoolean()) {
+      drivePower = 0.3;
+    }
+    m_drive.driveCartesian(-m_driverController.getLeftY() * drivePower, m_driverController.getLeftX() * drivePower, m_driverController.getRightX() * drivePower);
+    
+    m_intake.setMotor((m_armController.getRightTriggerAxis() - m_armController.getLeftTriggerAxis()) * 0.7);
+  }
+
+  public void simulationDrive() {
+    m_drive.driveCartesianFieldRelative(-m_driverController.getLeftY(), -m_driverController.getLeftX(), -m_driverController.getRightX());
+  }
+
+  public void reset() {
+    m_elevator.reset();
+    m_drive.reset();
   }
 }

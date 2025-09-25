@@ -4,16 +4,41 @@
 
 package frc.robot;
 
-/**
- * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
- * constants. This class should not be used for any other purpose. All constants should be declared
- * globally (i.e. public static). Do not put anything functional in this class.
- *
- * <p>It is advised to statically import this class (or one of its inner classes) wherever the
- * constants are needed, to reduce verbosity.
- */
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+
+
 public final class Constants {
+
+  public static final double dt = 0.02;
+
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
+    public static final int kArmControllerPort = 1;
+  }
+
+  public static class HardwareConstants {
+    public static final int kFrontLeftMotorID = 5;
+    public static final int kRearLeftMotorID = 4;
+    public static final int kFrontRightMotorID = 3;
+    public static final int kRearRightMotorID = 2;
+
+    public static final int kElevatorMotorID = 6;
+    public static final int kIntakeMotorID = 7;
+
+    public static final double kXSpeed = 5;
+    public static final double kYSpeed = 3;
+    public static final double kRotSpeed = Math.PI;
+
+    public static final String kLimelightName = "limelight-crash";
+  }
+
+  public static class AutoConstants {
+    public static final Pose2d redStart = new Pose2d(10, 4, new Rotation2d(0));
+    public static final Pose2d blueStart = new Pose2d(7.5, 4, new Rotation2d(Math.PI));
+    
+    //These are elevator heights 1-4
+    //Not a constant...
+    public static double[] elevatorHeights = {0, 17, 34, 58};
   }
 }
