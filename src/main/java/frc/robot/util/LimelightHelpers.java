@@ -139,6 +139,8 @@ public class LimelightHelpers {
      */
     public static class LimelightTarget_Fiducial {
 
+        public static final int ID = 0;
+
         @JsonProperty("fID")
         public double fiducialID;
 

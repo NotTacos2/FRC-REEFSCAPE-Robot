@@ -17,9 +17,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.auto.PathPlannerAuto;
 
 public class RobotContainer {
 
@@ -58,15 +55,6 @@ public class RobotContainer {
     m_autoChooser.addOption("Drive Forward Auto", Autos.driveAuto(this));
 
     SmartDashboard.putData("Auto", m_autoChooser);
-  }
-
-  public Command getAutonomousCommand() {
-    try {
-      return new PathPlannerAuto("67"); // made me giggle so hard
-    } catch (Exception e) {
-      DriverStation.reportError("Hey atleast we tried " + e.getMessage(), e.getStackTrace());
-    }
-    return Commands.none();
   }
 
   public Command getAuto() {
