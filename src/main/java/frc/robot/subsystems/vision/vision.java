@@ -13,7 +13,7 @@ public class vision extends SubsystemBase {
         LimelightHelpers.setPipelineIndex(HardwareConstants.kLimelightName, 0);
     }
 
-    public int getAprilTagID() {
+    public double getAprilTagID() {
         if (results.valid) {
             if (results.targets_Fiducials.length > 0) {
                 LimelightTarget_Fiducial tag = results.targets_Fiducials[0];
@@ -23,3 +23,4 @@ public class vision extends SubsystemBase {
         return 0;
     }
 }
+
