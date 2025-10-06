@@ -7,6 +7,8 @@ import com.studica.frc.AHRS.NavXComType;
 
 import frc.robot.Constants.HardwareConstants;
 import frc.robot.util.LimelightHelpers;
+import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.subsystems.elevator.Elevator;
 
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -33,6 +35,9 @@ public class MecanumDrivetrain extends SubsystemBase {
     private final MecanumDrive m_robotDrive;
     
     private final AHRS m_gyro = new AHRS(NavXComType.kMXP_SPI);
+
+    VisionSubsystem visionSubsystem = new VisionSubsystem();
+    Elevator elevator = new Elevator();
 
     public MecanumDrivetrain() {
         m_gyro.zeroYaw();
@@ -99,7 +104,7 @@ public class MecanumDrivetrain extends SubsystemBase {
     public void periodic() {
         LimelightHelpers.SetRobotOrientation(HardwareConstants.kLimelightName, m_gyro.getYaw(), m_gyro.getRate(),0,0,0,0);
         LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(HardwareConstants.kLimelightName);
-
+        
         if(mt2 != null && mt2.tagCount > 0){
             m_poseEstimate = mt2.pose;
         } else {
@@ -115,6 +120,10 @@ public class MecanumDrivetrain extends SubsystemBase {
         }
         
         m_field.setRobotPose(m_poseEstimate);
+
+        if (visionSubsystem.getAprilTagID() == 10) { // idk but um I'mma port this to auto tomorrow with t calculations and stuff
+            elevator.setGoal(3);
+        }
     }
 
     @Override
