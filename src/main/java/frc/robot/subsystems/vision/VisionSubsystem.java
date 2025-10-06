@@ -9,7 +9,7 @@ import frc.robot.util.LimelightHelpers;
 import frc.robot.util.LimelightHelpers.LimelightResults;
 import frc.robot.util.LimelightHelpers.LimelightTarget_Fiducial;
 
-public class VisionSubsystem extends SubsystemBase {
+public class VisionSubsystem extends SubsystemBase { // these are json deprived because our limelight didn't support network tables for some reason
     LimelightResults results = LimelightHelpers.getLatestResults(HardwareConstants.kLimelightName);
 
     public VisionSubsystem() {
@@ -65,6 +65,17 @@ public class VisionSubsystem extends SubsystemBase {
         }
         if (pose == null) {
             DriverStation.reportWarning("Couldn't detect any pose...", false);
+        }
+        return pose;
+    }
+
+    public Pose3d getFieldPose() {
+        Pose3d pose = new Pose3d();
+        if (results.valid && results.targets_Fiducials.length > 0) {
+            LimelightTarget_Fiducial tag = results.targets_Fiducials[0];
+            pose = tag.getRobotPose_FieldSpace(); // this is what James told me so um idk
+        } else {
+            DriverStation.reportWarning("Couldn't detect field pose...", false);
         }
         return pose;
     }
