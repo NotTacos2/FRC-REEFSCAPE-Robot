@@ -7,6 +7,7 @@ import com.studica.frc.AHRS.NavXComType;
 
 import frc.robot.Constants.HardwareConstants;
 import frc.robot.util.LimelightHelpers;
+import frc.robot.RobotContainer;
 
 import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
@@ -25,7 +26,7 @@ public class DriveSubsystem extends SubsystemBase {
             this::getPose, // Robot pose supplier
             this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
             this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-            (speeds) -> bot.m_intake.setMotor(speeds), // I think hopefully robot doesn't explode 
+            (speeds) -> drivePower = speeds, // I think hopefully robot doesn't explode 
             new PPLTVController(0.02), // PPLTVController is the built in path following controller for differential drive trains
             config, // The robot configuration
             () -> {
