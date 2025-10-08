@@ -26,7 +26,7 @@ public class VisionSubsystem extends SubsystemBase { // these are json deprived 
         return 0;
     }
 
-    public double getHorizontalAngle() {
+    public double getHorizontalAngle() { // left to right
         if (results.valid) {
             if (results.targets_Fiducials.length > 0) {
                 LimelightTarget_Fiducial tag = results.targets_Fiducials[0];
@@ -36,7 +36,7 @@ public class VisionSubsystem extends SubsystemBase { // these are json deprived 
         return 0;
     }
 
-    public double getVerticalAngle() {
+    public double getVerticalAngle() { // up and down
         if (results.valid) {
             if (results.targets_Fiducials.length > 0) {
                 LimelightTarget_Fiducial tag = results.targets_Fiducials[0];
